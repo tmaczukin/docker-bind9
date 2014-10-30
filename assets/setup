@@ -1,0 +1,19 @@
+#!/bin/bash
+
+mkdir -p /var/log/bind/
+touch /var/log/bind/bind.log
+
+cd /etc/bind
+
+mkdir defaults
+mv db* defaults/
+mv zones.rfc1918 defaults/
+sed -i "s/\/bind\/db\./\/bind\/defaults\/db\./" named.conf.default-zones
+sed -i "s/\/bind\/db\./\/bind\/defaults\/db\./" defaults/zones.rfc1918
+
+chmod 644 rndc.key
+
+mkdir local.conf.d/
+touch local.conf.d/zones.conf
+
+rm -rf /setup

@@ -1,0 +1,19 @@
+options {
+	directory "/var/cache/bind";
+	version "none";
+
+	forwarders {
+		REPLACE_FORWARDER;
+	};
+
+	recursion       	yes;
+	dnssec-validation	no;
+	auth-nxdomain		no;    # conform to RFC1035
+};
+
+logging {
+	category queries {
+		default_stderr;
+	};
+};
+

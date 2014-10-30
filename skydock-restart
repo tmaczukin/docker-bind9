@@ -1,0 +1,44 @@
+#!/bin/sh
+
+PREFIX=docker-base
+SKYDNS=${PREFIX}-skydns
+SKYDOCK=${PREFIX}-skydock
+BIND=${PREFIX}-bind9
+
+DOMAIN=docker
+DNS_FORWARDER=${DNS_FORWARDER:-8.8.8.8}
+BIND_LOCALCONF_VOLUME=${BIND_LOCALCONF_VOLUME:-}
+
+BIND_OPTIONS="-p 127.0.0.1:53:53/udp -p 172.17.42.1:53:53/udp --link ${SKYDNS}:skydns -e DNS_FORWARDER=${DNS_FORWARDER}"
+if [ "$BIND_LOCALCONF_VOLUME" != "" ]; then
+	if [ ! -d $BIND_LOCALCONF_VOLUME ]; then
+		echo "Volume $BIND_LOCALCONF_VOLUME does not exists!"
+		exit 255
+	fi
+	BIND_OPTIONS="${BIND_OPTIONS} -v ${BIND_LOCALCONF_VOLUME}:/etc/bind/local.conf.d"
+fi
+
+stop_container() {
+	docker ps -a | grep $1 > /dev/null
+	if [ $? -eq 0 ]; then
+		docker stop $1
+		docker rm $1
+	fi
+}
+
+stop_container $BIND
+stop_container $SKYDOCK
+stop_container $SKYDNS
+
+docker run -d --name $SKYDNS \
+		--restart always \
+		crosbymichael/skydns \
+		-nameserver 172.17.42.1:53 -domain $DOMAIN
+
+docker run -d --name $SKYDOCK \
+		-v /var/run/docker.sock:/docker.sock \
+		crosbymichael/skydock \
+		-ttl 30 -environment dev -s /docker.sock -domain $DOMAIN -name $SKYDNS
+
+docker run -d --name $BIND $BIND_OPTIONS maczukin/bind9
+

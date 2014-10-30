@@ -1,0 +1,3 @@
+//include "/etc/bind/named.conf.skydns-zone";
+include "/etc/bind/local.conf.d/zones.conf";
+

@@ -1,0 +1,5 @@
+zone "REPLACE_SKYDNS_DOMAIN" {
+        type forward;
+        forwarders { REPLACE_SKYDNS_IP; };
+};
+

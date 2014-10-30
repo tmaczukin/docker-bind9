@@ -1,0 +1,77 @@
+#!/bin/bash
+
+SKYDNS_ADDR=${SKYDNS_ADDR:-}
+SKYDNS_DOMAIN=${SKYDNS_DOMAIN:-docker}
+
+DNS_FORWARDER=${DNS_FORWARDER:-8.8.8.8}
+
+if [ -n "${SKYDNS_PORT_53_UDP_ADDR}" ]; then
+	SKYDNS_ADDR=$SKYDNS_PORT_53_UDP_ADDR
+fi
+
+if [ -n "${SKYDNS_ADDR}" ]; then
+	sed -i "s/\/\/include/include/" /etc/bind/named.conf.local
+	sed -i "s/REPLACE_SKYDNS_IP/${SKYDNS_ADDR}/" /etc/bind/named.conf.skydns-zone
+	sed -i "s/REPLACE_SKYDNS_DOMAIN/${SKYDNS_DOMAIN}/" /etc/bind/named.conf.skydns-zone
+fi
+
+if [ -n "${DNS_FORWARDER}" ]; then
+	sed -i "s/REPLACE_FORWARDER/${DNS_FORWARDER}/" /etc/bind/named.conf.options
+fi
+
+if [ ! -f "/etc/bind/local.conf.d/zones.conf" ]; then
+	touch /etc/bind/local.conf.d/zones.conf
+fi
+
+IP=$(hostname -i)
+HOSTNAME=$(hostname -f)
+
+echo
+echo ======================================================================
+echo
+echo -e "IP Address: \033[1m$IP\033[0m"
+echo -e "Hostname: \033[1m$HOSTNAME\033[0m"
+echo
+echo ======================================================================
+echo
+
+appStart() {
+	supervisord
+	find /var/log/*
+	tail -f /var/log/bind/bind.log
+}
+
+appUsage() {
+	echo
+	echo "Commands:"
+	echo
+	echo "  start   Start application"
+	echo "  usage   Show this help image"
+	echo
+}
+
+case "$1" in
+	start)
+		appStart
+		exit 0
+		;;
+	*)
+		if [ -x $1 ]; then
+			prog=$1
+			shift 1
+			$prog $@
+		else
+			prog=$(which $1)
+			if [ -n "${prog}" ]; then
+				shift 1
+				$prog $@
+			else
+				appUsage
+			fi
+		fi
+		exit 1
+		;;
+esac
+
+exit 0
+
