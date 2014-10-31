@@ -1,11 +1,14 @@
 #!/bin/sh
 
-PREFIX=docker-base
-SKYDNS=${PREFIX}-skydns
-SKYDOCK=${PREFIX}-skydock
-BIND=${PREFIX}-bind9
+PREFIX=${PREFIX:-dns-}
+SKYDNS=${PREFIX}skydns
+SKYDOCK=${PREFIX}skydock
+BIND=${PREFIX}bind9
 
-DOMAIN=docker
+TTL=${TTL:-30}
+ENV=${ENV:-dev}
+DOMAIN=${DOMAIN:-docker}
+
 DNS_FORWARDER=${DNS_FORWARDER:-8.8.8.8}
 BIND_LOCALCONF_VOLUME=${BIND_LOCALCONF_VOLUME:-}
 
@@ -38,7 +41,7 @@ docker run -d --name $SKYDNS \
 docker run -d --name $SKYDOCK \
 		-v /var/run/docker.sock:/docker.sock \
 		crosbymichael/skydock \
-		-ttl 30 -environment dev -s /docker.sock -domain $DOMAIN -name $SKYDNS
+		-ttl $TTL -environment $ENV -s /docker.sock -domain $DOMAIN -name $SKYDNS
 
 docker run -d --name $BIND $BIND_OPTIONS tmaczukin/bind9
 
