@@ -40,5 +40,5 @@ docker run -d --name $SKYDOCK \
 		crosbymichael/skydock \
 		-ttl 30 -environment dev -s /docker.sock -domain $DOMAIN -name $SKYDNS
 
-docker run -d --name $BIND $BIND_OPTIONS maczukin/bind9
+docker run -d --name $BIND $BIND_OPTIONS tmaczukin/bind9
 

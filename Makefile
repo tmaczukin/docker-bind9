@@ -1,7 +1,7 @@
 tstamp = $(shell date +"%Y%m%d%H%M%S")
 tag = latest
 name = bind9
-vendor = maczukin
+vendor = tmaczukin
 imageName = $(vendor)/$(name)
 
 build:
