@@ -6,22 +6,22 @@ SKYDNS_DOMAIN=${SKYDNS_DOMAIN:-docker}
 DNS_FORWARDER=${DNS_FORWARDER:-}
 
 if [ -n "${SKYDNS_PORT_53_UDP_ADDR}" ]; then
-	SKYDNS_ADDR=$SKYDNS_PORT_53_UDP_ADDR
+    SKYDNS_ADDR=$SKYDNS_PORT_53_UDP_ADDR
 fi
 
 if [ -n "${SKYDNS_ADDR}" ]; then
-	sed -i "s/\/\/include/include/" /etc/bind/named.conf.local
-	sed -i "s/REPLACE_SKYDNS_IP/${SKYDNS_ADDR}/" /etc/bind/named.conf.skydns-zone
-	sed -i "s/REPLACE_SKYDNS_DOMAIN/${SKYDNS_DOMAIN}/" /etc/bind/named.conf.skydns-zone
+    sed -i "s/\/\/include/include/" /etc/bind/named.conf.local
+    sed -i "s/REPLACE_SKYDNS_IP/${SKYDNS_ADDR}/" /etc/bind/named.conf.skydns-zone
+    sed -i "s/REPLACE_SKYDNS_DOMAIN/${SKYDNS_DOMAIN}/" /etc/bind/named.conf.skydns-zone
 fi
 
 if [ -n "${DNS_FORWARDER}" ]; then
-	sed -i "s|// forwarders { REPLACE_FORWARDER; };|forwarders { ${DNS_FORWARDER}; };|" /etc/bind/named.conf.options
-        sed -i "s/recursion\s*no/recursion yes/" /etc/bind/named.conf.options
+    sed -i "s|// forwarders { REPLACE_FORWARDER; };|forwarders { ${DNS_FORWARDER}; };|" /etc/bind/named.conf.options
+    sed -i "s/recursion\s*no/recursion yes/" /etc/bind/named.conf.options
 fi
 
 if [ ! -f "/etc/bind/local.conf.d/zones.conf" ]; then
-	touch /etc/bind/local.conf.d/zones.conf
+    touch /etc/bind/local.conf.d/zones.conf
 fi
 
 IP=$(hostname -i)
@@ -37,40 +37,39 @@ echo ======================================================================
 echo
 
 appStart() {
-	/usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+    /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }
 
 appUsage() {
-	echo
-	echo "Commands:"
-	echo
-	echo "  start   Start application"
-	echo "  usage   Show this help image"
-	echo
+    echo
+    echo "Commands:"
+    echo
+    echo "  start   Start application"
+    echo "  usage   Show this help image"
+    echo
 }
 
 case "$1" in
-	start)
-		appStart
-		exit 0
-		;;
-	*)
-		if [ -x $1 ]; then
-			prog=$1
-			shift 1
-			$prog $@
-		else
-			prog=$(which $1)
-			if [ -n "${prog}" ]; then
-				shift 1
-				$prog $@
-			else
-				appUsage
-			fi
-		fi
-		exit 1
-		;;
+    start)
+        appStart
+        exit 0
+        ;;
+    *)
+        if [ -x $1 ]; then
+            prog=$1
+            shift 1
+            $prog $@
+        else
+            prog=$(which $1)
+            if [ -n "${prog}" ]; then
+                shift 1
+                $prog $@
+            else
+                appUsage
+            fi
+        fi
+        exit 1
+        ;;
 esac
 
 exit 0
-
