@@ -6,7 +6,7 @@ imageName = $(vendor)/$(name)
 
 build:
 	docker build --rm -t $(imageName):$(tag) .
-	docker tag $(imageName):$(tag) $(imageName):latest
+	docker tag -f $(imageName):$(tag) $(imageName):latest
 
 vupdate:
 	sed -i "s/# update_[0-9]*/# update_$(tstamp)/" Dockerfile
