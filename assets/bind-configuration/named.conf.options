@@ -2,11 +2,9 @@ options {
 	directory "/var/cache/bind";
 	version "none";
 
-	forwarders {
-		REPLACE_FORWARDER;
-	};
+	// forwarders { REPLACE_FORWARDER; };
 
-	recursion       	yes;
+	recursion       	no;
 	dnssec-validation	no;
 	auth-nxdomain		no;    # conform to RFC1035
 };
